@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Платформа для учеников и преподавателей</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="landing">
+    <div class="landing-shell">
+      <header class="landing-nav">
+        <a class="landing-brand" href="./">
+          <span>ИНТЕЛЛИКА</span>
+        </a>
+
+        <nav class="landing-nav__links">
+          <a href="#product">Платформа</a>
+          <a href="#roles">Роли</a>
+          <a href="#live">Вебинары</a>
+          <a href="#homework">Домашки</a>
+        </nav>
+
+        <div class="landing-nav__actions">
+          <a class="surface-link" href="./login/">Вход</a>
+          <a class="primary-action primary-action--inline" href="./login/?role=student">Открыть платформу</a>
+        </div>
+      </header>
+
+      <main class="landing-main">
+        <section class="landing-hero" id="product">
+          <div class="landing-hero__copy">
+            <p class="eyebrow">Образовательная платформа нового потока</p>
+            <h1>Один продукт для учеников, преподавателей, вебинаров, записей и домашних заданий.</h1>
+            <p>
+              Лендинг, кабинеты двух ролей, PostgreSQL-база пользователей, видеотрансляции и записи
+              из VK Video и YouTube, а ещё домашки с визуальными материалами прямо внутри курса.
+            </p>
+
+            <div class="landing-hero__actions">
+              <a class="primary-action primary-action--inline" href="./login/?role=student">Войти как ученик</a>
+              <a class="ghost-action" href="./login/?role=teacher">Войти как преподаватель</a>
+            </div>
+
+            <div class="landing-badges">
+              <span class="landing-badge">Кабинет ученика</span>
+              <span class="landing-badge">Кабинет преподавателя</span>
+              <span class="landing-badge">Эфиры, VK Video и YouTube</span>
+            </div>
+          </div>
+
+          <div class="landing-showcase">
+            <article class="landing-showcase__card landing-showcase__card--hero">
+              <p class="eyebrow">Что внутри</p>
+              <h2>Платформа собирает весь учебный цикл.</h2>
+              <div class="showcase-lines">
+                <div>
+                  <strong>Курсы</strong>
+                  <span>Прогресс, баллы, темы и преподаватели</span>
+                </div>
+                <div>
+                  <strong>Вебинары</strong>
+                  <span>Прямые эфиры, VK Video и YouTube в одной витрине</span>
+                </div>
+                <div>
+                  <strong>Домашки</strong>
+                  <span>Задания с картинками, схемами и визуальными подсказками</span>
+                </div>
+              </div>
+            </article>
+
+            <div class="landing-showcase__grid">
+              <article class="landing-mini-card">
+                <span class="landing-mini-card__value" id="landing-students-count">0</span>
+                <span class="landing-mini-card__label">учеников в базе</span>
+              </article>
+              <article class="landing-mini-card">
+                <span class="landing-mini-card__value" id="landing-webinars-count">0</span>
+                <span class="landing-mini-card__label">вебинаров и записей</span>
+              </article>
+              <article class="landing-mini-card landing-mini-card--wide">
+                <span class="landing-mini-card__value" id="landing-homeworks-count">0</span>
+                <span class="landing-mini-card__label">домашних заданий с вложениями</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="landing-stats" id="landing-stats"></section>
+
+        <section class="landing-grid" id="roles">
+          <article class="landing-feature">
+            <p class="eyebrow">Для учеников</p>
+            <h3>Личный кабинет без хаоса</h3>
+            <p>
+              Прогресс по предметам, ближайшие вебы, записи, домашки, lives и кураторские
+              комментарии собираются на одном экране.
+            </p>
+          </article>
+          <article class="landing-feature">
+            <p class="eyebrow">Для преподавателей</p>
+            <h3>Одна преподавательская панель для всей группы</h3>
+            <p>
+              В кабинете преподавателя доступны вся база учеников, оперативный обзор курсов и
+              быстрый доступ к созданию новых активностей.
+            </p>
+          </article>
+          <article class="landing-feature">
+            <p class="eyebrow">Для контента</p>
+            <h3>Видео и прямые эфиры без разрыва сценария</h3>
+            <p>
+              Добавляй вебинары, прямые трансляции и видеозаписи из VK Video и YouTube, а ученики
+              увидят их в кабинете сразу после публикации.
+            </p>
+          </article>
+        </section>
+
+        <section class="landing-split" id="live">
+          <div class="landing-split__copy">
+            <p class="eyebrow">Медиатека платформы</p>
+            <h2>Запуск вебинаров и видеоуроков через один интерфейс.</h2>
+            <p>
+              Преподаватель создаёт эфир или видео, задаёт предмет и дату, а система раскладывает
+              материалы по расписанию и в библиотеку записей для ученика.
+            </p>
+            <a class="surface-link surface-link--strong" href="./login/?role=teacher">
+              Смотреть кабинет преподавателя
+            </a>
+          </div>
+          <div class="landing-preview-grid" id="landing-preview-webinars"></div>
+        </section>
+
+        <section class="landing-split landing-split--reverse" id="homework">
+          <div class="landing-preview-grid" id="landing-preview-homeworks"></div>
+          <div class="landing-split__copy">
+            <p class="eyebrow">Домашки с визуалом</p>
+            <h2>Изображения внутри задания делают разборы нагляднее.</h2>
+            <p>
+              В домашнее задание можно загрузить схемы, таблицы, сканы, графики и любые изображения
+              по теме. Они сразу будут доступны в кабинете ученика.
+            </p>
+            <a class="surface-link surface-link--strong" href="./login/?role=student">
+              Смотреть кабинет ученика
+            </a>
+          </div>
+        </section>
+
+        <section class="landing-cta">
+          <div>
+            <p class="eyebrow">Платформа в работе</p>
+            <h2>Запускай обучение, контент и коммуникацию с учениками в одном связанном продукте.</h2>
+          </div>
+          <div class="landing-cta__actions">
+            <a class="primary-action primary-action--inline" href="./login/?role=student">Запустить платформу</a>
+            <a class="surface-link" href="./login/?role=teacher">Кабинет преподавателя</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>

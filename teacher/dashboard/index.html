@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Кабинет преподавателя</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body data-page="teacher-dashboard">
+    <div class="app-shell">
+      <aside class="sidebar sidebar--teacher">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link sidebar-link--active" href="#teacher-overview">Обзор</a>
+          <a class="sidebar-link" href="#teacher-students-section">Ученики</a>
+          <a class="sidebar-link" href="#teacher-webinars-section">Вебинары</a>
+          <a class="sidebar-link" href="#teacher-homework-section">Домашки</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Операционный кабинет</p>
+          <h3>Из этого кабинета можно создавать эфиры, видеоуроки и домашки с изображениями для всей платформы.</h3>
+          <a class="ghost-action" href="../../login/?role=student">Открыть кабинет ученика</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../">Лендинг</a>
+          <a class="logout-button" id="teacher-logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по ученикам и контенту</span>
+            <input type="text" placeholder="Ученик, предмет, вебинар..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip student-chip--teacher">
+              <div class="student-chip__avatar student-chip__avatar--teacher" id="teacher-initials">ПР</div>
+              <div>
+                <strong id="teacher-name">Преподаватель</strong>
+              <span>Управление платформой</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero-card hero-card--teacher" id="teacher-overview">
+          <div class="hero-card__copy">
+            <p class="eyebrow">Панель преподавателя</p>
+            <h1>Управляй всеми учениками, вебинарами и домашками с одного экрана.</h1>
+            <p>
+              Всё, что ты публикуешь здесь, сразу становится частью платформы: расписания ученика,
+              медиатеки записей и ленты домашних заданий.
+            </p>
+            <div class="hero-card__actions">
+              <a class="primary-action primary-action--inline" href="#teacher-webinars-section">
+                Добавить вебинар
+              </a>
+              <a class="ghost-action ghost-action--light" href="#teacher-homework-section">
+                Добавить домашку
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-card__stats hero-card__stats--teacher">
+            <div class="teacher-summary-card">
+              <p>Учеников в платформе</p>
+              <strong id="teacher-students-count">0</strong>
+              <span>Зарегистрированные аккаунты с доступом к курсам</span>
+            </div>
+            <div class="teacher-summary-card">
+              <p>Активных материалов</p>
+              <strong id="teacher-assets-count">0</strong>
+              <span>Вебинары, записи и домашние задания</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="metrics-grid metrics-grid--teacher">
+          <article class="metric-card metric-card--teacher">
+            <p>Вебинары</p>
+            <strong id="teacher-webinars-count">0</strong>
+            <span>Прямые эфиры и запланированные занятия</span>
+          </article>
+          <article class="metric-card">
+            <p>Видео</p>
+            <strong id="teacher-videos-count">0</strong>
+            <span>Записи из VK Video и YouTube</span>
+          </article>
+          <article class="metric-card">
+            <p>Домашки</p>
+            <strong id="teacher-homeworks-count">0</strong>
+            <span>Задания по всем предметам и потокам</span>
+          </article>
+          <article class="metric-card">
+            <p>С вложениями</p>
+            <strong id="teacher-homeworks-images-count">0</strong>
+            <span>Домашки с изображениями и схемами</span>
+          </article>
+        </section>
+
+        <section class="section-card" id="teacher-students-section">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">База платформы</p>
+              <h2>Все зарегистрированные ученики</h2>
+            </div>
+            <span class="badge">Полный доступ</span>
+          </div>
+          <div class="student-roster" id="teacher-students"></div>
+        </section>
+
+        <section class="teacher-layout" id="teacher-webinars-section">
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Создание контента</p>
+                <h2>Добавить вебинар или видео</h2>
+              </div>
+            </div>
+
+            <form class="teacher-form" id="webinar-form">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Название вебинара</span>
+                  <input id="webinar-title" type="text" placeholder="Разбор 18 задания по химии" />
+                </label>
+                <label class="field">
+                  <span>Предмет</span>
+                  <select id="webinar-subject">
+                    <option>Химия</option>
+                    <option>Русский язык</option>
+                    <option>Профильная математика</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Формат</span>
+                  <select id="webinar-type">
+                    <option value="live">Видеотрансляция</option>
+                    <option value="vk">VK Video</option>
+                    <option value="youtube">YouTube</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Дата и время</span>
+                  <input id="webinar-date" type="datetime-local" />
+                </label>
+                <label class="field">
+                  <span>Преподаватель</span>
+                  <input id="webinar-teacher" type="text" placeholder="Мария Орлова" />
+                </label>
+                <label class="field">
+                  <span>Ссылка на трансляцию или видео</span>
+                  <input id="webinar-url" type="url" placeholder="https://youtube.com/watch?v=..." />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Описание</span>
+                <textarea
+                  id="webinar-description"
+                  rows="4"
+                  placeholder="Что будет на занятии, какие темы и какой итог получит ученик."
+                ></textarea>
+              </label>
+
+              <div class="teacher-form__actions">
+                <button class="primary-action primary-action--inline" type="submit">Сохранить вебинар</button>
+                <p class="form-note" id="webinar-form-note">
+                  Для VK Video и YouTube можно вставить обычную ссылку на ролик или embed-ссылку.
+                </p>
+              </div>
+            </form>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Каталог материалов</p>
+                <h2>Опубликованные вебинары и записи</h2>
+              </div>
+            </div>
+            <div class="teacher-list" id="teacher-webinars"></div>
+          </section>
+        </section>
+
+        <section class="teacher-layout" id="teacher-homework-section">
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Домашние задания</p>
+                <h2>Создать домашку с изображениями</h2>
+              </div>
+            </div>
+
+            <form class="teacher-form" id="homework-form">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Предмет</span>
+                  <select id="homework-subject">
+                    <option>Химия</option>
+                    <option>Русский язык</option>
+                    <option>Профильная математика</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Название задания</span>
+                  <input id="homework-title" type="text" placeholder="Мини-пробник по органике" />
+                </label>
+                <label class="field">
+                  <span>Дедлайн</span>
+                  <input id="homework-deadline" type="datetime-local" />
+                </label>
+                <label class="field">
+                  <span>Курс / поток</span>
+                  <input id="homework-course" type="text" placeholder="11 класс · Основной поток" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Инструкция</span>
+                <textarea
+                  id="homework-instructions"
+                  rows="4"
+                  placeholder="Опиши, что нужно решить, на что обратить внимание и какой формат ответа ожидается."
+                ></textarea>
+              </label>
+
+              <label class="field">
+                <span>Изображения для домашки</span>
+                <input id="homework-images" type="file" accept="image/*" multiple />
+              </label>
+
+              <div class="upload-preview" id="homework-image-preview"></div>
+
+              <div class="teacher-form__actions">
+                <button class="primary-action primary-action--inline" type="submit">Сохранить домашку</button>
+                <p class="form-note" id="homework-form-note">
+                  Загруженные изображения появятся у ученика прямо внутри карточки домашнего задания.
+                </p>
+              </div>
+            </form>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Лента заданий</p>
+                <h2>Последние домашки на платформе</h2>
+              </div>
+            </div>
+            <div class="teacher-list" id="teacher-homeworks"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Вход</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body data-page="login">
+    <main class="auth-shell">
+      <section class="auth-visual">
+        <div class="auth-brand auth-brand--visual">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <div class="auth-copy">
+          <p class="eyebrow">Платформа подготовки к ЕГЭ и ОГЭ</p>
+          <h1>Один вход для ученика и преподавателя.</h1>
+          <p>
+            Ученик попадает в свой кабинет с курсами и домашками. Преподаватель открывает
+            операционный кабинет платформы, видит всех зарегистрированных учеников и публикует
+            новые вебинары и задания.
+          </p>
+        </div>
+
+        <div class="auth-doodles" aria-hidden="true">
+          <span class="doodle doodle--star doodle--a"></span>
+          <span class="doodle doodle--star doodle--b"></span>
+          <span class="doodle doodle--circle doodle--c"></span>
+          <span class="doodle doodle--triangle doodle--d"></span>
+          <span class="doodle doodle--ruler doodle--e"></span>
+          <span class="doodle doodle--globe doodle--f"></span>
+          <span class="doodle doodle--orbit doodle--g"></span>
+          <span class="doodle doodle--wave doodle--h"></span>
+          <span class="doodle doodle--flask doodle--i"></span>
+          <span class="doodle doodle--star doodle--j"></span>
+          <span class="doodle doodle--circle doodle--k"></span>
+          <span class="doodle doodle--triangle doodle--l"></span>
+        </div>
+      </section>
+
+      <section class="auth-panel">
+        <div class="auth-card">
+          <div class="auth-card__top">
+            <div class="auth-brand">
+              <span>100БАЛЛЬНЫЙ</span>
+              <span>РЕПЕТИТОР</span>
+            </div>
+            <a class="surface-link" href="../">На лендинг</a>
+          </div>
+
+          <div class="role-switch" id="auth-mode-switch">
+            <button class="role-switch__tab role-switch__tab--active" data-mode="login" type="button">
+              Вход
+            </button>
+            <button class="role-switch__tab" data-mode="register" type="button">
+              Регистрация
+            </button>
+          </div>
+
+          <div class="role-switch" id="role-switch">
+            <button class="role-switch__tab role-switch__tab--active" data-role="student" type="button">
+              Ученик
+            </button>
+            <button class="role-switch__tab" data-role="teacher" type="button">
+              Преподаватель
+            </button>
+          </div>
+
+          <div class="auth-form-copy">
+            <h2 id="login-heading">Вход для ученика</h2>
+            <p id="login-copy">
+              Войди по email и паролю, чтобы открыть свой учебный кабинет.
+            </p>
+          </div>
+
+          <form class="auth-form" id="login-form">
+            <label class="field" id="full-name-field" hidden>
+              <span>Имя и фамилия</span>
+              <input id="full-name-input" type="text" autocomplete="name" placeholder="Иван Петров" />
+            </label>
+
+            <label class="field">
+              <span>Email</span>
+              <input
+                id="email-input"
+                type="email"
+                inputmode="email"
+                placeholder="ivan@school.ru"
+                autocomplete="email"
+              />
+            </label>
+
+            <label class="field">
+              <span>Пароль</span>
+              <input
+                id="password-input"
+                type="password"
+                minlength="8"
+                placeholder="Минимум 8 символов"
+                autocomplete="current-password"
+              />
+            </label>
+
+            <div class="form-grid" id="student-extra-fields" hidden>
+              <label class="field">
+                <span>Класс</span>
+                <select id="grade-input">
+                  <option value="9 класс">9 класс</option>
+                  <option value="10 класс">10 класс</option>
+                  <option value="11 класс" selected>11 класс</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Год экзамена</span>
+                <input id="exam-year-input" type="number" min="2025" max="2035" step="1" value="2026" />
+              </label>
+            </div>
+
+            <button class="primary-action" id="continue-button" type="submit">
+              Войти как ученик
+            </button>
+          </form>
+
+          <div class="auth-note" id="auth-status" data-kind="info">
+            <div class="auth-note__dot"></div>
+            <p id="auth-note-text">
+              После входа будут доступны курсы, вебинары, видеотека и домашние задания.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="../main.js"></script>
+  </body>
+</html>

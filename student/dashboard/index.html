@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Кабинет ученика</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body data-page="student-dashboard">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link sidebar-link--active" href="#overview">Дашборд</a>
+          <a class="sidebar-link" href="#courses">Курсы</a>
+          <a class="sidebar-link" href="#schedule">Вебинары</a>
+          <a class="sidebar-link" href="#library">Видео</a>
+          <a class="sidebar-link" href="#homework">Домашки</a>
+          <a class="sidebar-link" href="#community">Комьюнити</a>
+          <a class="sidebar-link" href="#logout">Выход</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Куратор на связи</p>
+          <h3>Все новые вебинары и домашки от преподавателей прилетают сюда автоматически через платформу.</h3>
+          <a class="ghost-action" href="../../login/?role=teacher">Открыть кабинет преподавателя</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../">Лендинг</a>
+          <a class="logout-button" id="student-logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по платформе</span>
+            <input type="text" placeholder="Курс, домашка, вебинар, запись..." />
+          </label>
+
+          <div class="topbar__actions">
+            <button class="icon-button" type="button" aria-label="Уведомления">3</button>
+            <div class="student-chip">
+              <div class="student-chip__avatar" id="student-initials">УЧ</div>
+              <div>
+                <strong id="student-name">Ученик</strong>
+                <span id="student-meta">11 класс · ЕГЭ 2026</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero-card" id="overview">
+          <div class="hero-card__copy">
+            <p class="eyebrow">Учебный кабинет</p>
+            <h1 id="student-hero-title">Сегодня закрываем химию, русский и финальный разбор второй части.</h1>
+            <p id="student-hero-copy">
+              Все важное на одном экране: ближайшие вебы, записи, домашки, lives и темп подготовки.
+            </p>
+            <div class="hero-card__actions">
+              <a class="primary-action primary-action--inline" href="#schedule">Открыть расписание</a>
+              <a class="ghost-action ghost-action--light" href="#homework">Посмотреть домашки</a>
+            </div>
+          </div>
+
+          <div class="hero-card__stats">
+            <div class="progress-ring" id="student-progress-ring">
+              <div class="progress-ring__core">
+                <strong id="student-progress-value">78%</strong>
+                <span>курс закрыт</span>
+              </div>
+            </div>
+
+            <div class="next-event">
+              <p>Следующий вебинар</p>
+              <strong id="next-webinar-time">19:00 · Химия</strong>
+              <span id="next-webinar-title">Органика: цепочки и генетическая связь классов</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="metrics-grid" id="progress">
+          <article class="metric-card metric-card--purple">
+            <p>Ресурс</p>
+            <strong id="student-lives">4</strong>
+            <span>Не пропусти дедлайны, чтобы не сгорели.</span>
+          </article>
+          <article class="metric-card">
+            <p>Стрик</p>
+            <strong id="student-streak">16 дней</strong>
+            <span>Стабильная подготовка без провалов по темпу.</span>
+          </article>
+          <article class="metric-card">
+            <p>Заданий решено</p>
+            <strong id="student-solved">124</strong>
+            <span>Практика растёт вместе с темпом курса.</span>
+          </article>
+          <article class="metric-card">
+            <p>Прогноз баллов</p>
+            <strong id="student-score">86+</strong>
+            <span>Прогноз обновляется после новых активностей.</span>
+          </article>
+        </section>
+
+        <section class="section-block" id="courses">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Мои предметы</p>
+              <h2>Курсы и актуальный темп</h2>
+            </div>
+            <div class="filter-pills" id="subject-pills"></div>
+          </div>
+          <div class="subjects-grid" id="subjects-grid"></div>
+        </section>
+
+        <section class="content-grid">
+          <section class="section-card" id="schedule">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Сегодня и дальше</p>
+                <h2>Расписание вебинаров</h2>
+              </div>
+              <a href="#overview">К началу</a>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+
+          <section class="section-card" id="library">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Медиатека</p>
+                <h2>Видео из VK Video и YouTube</h2>
+              </div>
+              <span class="badge">Связано с базой платформы</span>
+            </div>
+            <div class="video-grid" id="video-library"></div>
+          </section>
+        </section>
+
+        <section class="content-grid content-grid--lower">
+          <section class="section-card section-card--tall" id="homework">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Дедлайны</p>
+                <h2>Домашки курса с изображениями</h2>
+              </div>
+            </div>
+            <div class="homework-list" id="homework-list"></div>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Аналитика</p>
+                <h2>Где растут баллы</h2>
+              </div>
+            </div>
+            <div class="bars" id="progress-bars"></div>
+          </section>
+        </section>
+
+        <section class="section-card" id="community">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Комьюнити и поддержка</p>
+              <h2>Что нового на платформе</h2>
+            </div>
+          </div>
+          <div class="feed" id="community-feed"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../main.js"></script>
+  </body>
+</html>
