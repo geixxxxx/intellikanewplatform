@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Просмотр вебинара</title>
+    <link rel="stylesheet" href="../../../styles.css" />
+  </head>
+  <body data-page="student-webinar-view">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/student/dashboard/">Кабинет</a>
+          <a class="sidebar-link sidebar-link--active" href="/student/webinars/">Вебинары</a>
+          <a class="sidebar-link" href="/student/dashboard/#library">Видео</a>
+          <a class="sidebar-link" href="/student/dashboard/#homework">Домашки</a>
+          <a class="sidebar-link" href="/student/dashboard/#community">Комьюнити</a>
+          <a class="sidebar-link" href="/logout">Выход</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Страница вебинара</p>
+          <h3>Смотри занятие, читай описание и выполняй домашки, привязанные именно к этому вебинару.</h3>
+          <a class="ghost-action" href="/student/webinars/">Назад к каталогу</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../..">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по платформе</span>
+            <input type="text" placeholder="Вебинар, домашка, предмет..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip">
+              <div class="student-chip__avatar" id="student-initials">УЧ</div>
+              <div>
+                <strong id="student-name">Ученик</strong>
+                <span id="student-meta">11 класс · ЕГЭ 2026</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero-card hero-card--teacher">
+          <div class="hero-card__copy">
+            <p class="eyebrow" id="student-webinar-subject">Вебинар</p>
+            <h1 id="student-webinar-title">Материал загружается</h1>
+            <p id="student-webinar-description">
+              Описание вебинара появится здесь сразу после загрузки данных платформы.
+            </p>
+            <div class="hero-card__actions">
+              <a class="ghost-action ghost-action--light" href="/student/webinars/">К каталогу</a>
+              <a class="primary-action primary-action--inline" id="student-webinar-source-link" href="#" target="_blank" rel="noreferrer">Открыть источник</a>
+            </div>
+          </div>
+
+          <div class="hero-card__stats hero-card__stats--teacher">
+            <div class="teacher-summary-card">
+              <p>Формат</p>
+              <strong id="student-webinar-type">Видео</strong>
+              <span id="student-webinar-time">Дата вебинара</span>
+            </div>
+            <div class="teacher-summary-card">
+              <p>Домашек внутри</p>
+              <strong id="student-webinar-homeworks-count">0</strong>
+              <span id="student-webinar-teacher">Преподаватель</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="webinar-stage">
+          <section class="section-card webinar-stage__player">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Просмотр</p>
+                <h2>Вебинар внутри платформы</h2>
+              </div>
+            </div>
+            <div id="student-webinar-player"></div>
+          </section>
+
+          <section class="section-card webinar-stage__side">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Навигация</p>
+                <h2>Что есть внутри материала</h2>
+              </div>
+            </div>
+            <div class="detail-checklist">
+              <article class="detail-checklist__item">
+                <strong>Просмотр записи</strong>
+                <span>Видео доступно прямо на странице вебинара</span>
+              </article>
+              <article class="detail-checklist__item">
+                <strong>Домашки по занятию</strong>
+                <span>Все задания собраны ниже, относятся только к этому вебинару и открываются на отдельной странице</span>
+              </article>
+              <article class="detail-checklist__item">
+                <strong>Следующие материалы</strong>
+                <span>После этого вебинара можно перейти к соседним занятиям каталога</span>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-grid content-grid--lower">
+          <section class="section-card section-card--tall">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Домашние задания</p>
+                <h2>Что нужно сделать после просмотра</h2>
+              </div>
+            </div>
+            <div class="homework-list" id="student-webinar-homeworks"></div>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Следом</p>
+                <h2>Другие вебинары каталога</h2>
+              </div>
+            </div>
+            <div class="webinar-mini-list" id="student-related-webinars"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../../main.js"></script>
+  </body>
+</html>

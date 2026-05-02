@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Домашние задания</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body data-page="teacher-homeworks">
+    <div class="app-shell">
+      <aside class="sidebar sidebar--teacher">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/teacher/dashboard/">Обзор</a>
+          <a class="sidebar-link" href="/teacher/students/">Ученики</a>
+          <a class="sidebar-link" href="/teacher/webinars/">Вебинары</a>
+          <a class="sidebar-link sidebar-link--active" href="/teacher/homeworks/">Домашки</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Раздел домашних заданий</p>
+          <h3>Все задания и изображения вынесены в отдельный рабочий раздел, чтобы обзор кабинета оставался чистым.</h3>
+          <a class="ghost-action" href="/teacher/dashboard/">Вернуться к обзору</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по домашкам</span>
+            <input type="text" placeholder="Предмет, поток, дедлайн..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip student-chip--teacher">
+              <div class="student-chip__avatar student-chip__avatar--teacher" id="teacher-initials">ПР</div>
+              <div>
+                <strong id="teacher-name">Преподаватель</strong>
+                <span>Раздел домашних заданий</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="section-card section-card--headline">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Домашние задания</p>
+              <h2>Все задания и вложения в отдельном разделе</h2>
+            </div>
+            <span class="badge" id="teacher-homeworks-count">0</span>
+          </div>
+          <p class="section-copy">
+            Здесь собраны все домашние задания платформы, изображения к ним и текущие дедлайны.
+            Главная teacher-страница остаётся обзорной, а рабочий контент лежит отдельно.
+          </p>
+        </section>
+
+        <section class="metrics-grid metrics-grid--teacher metrics-grid--compact">
+          <article class="metric-card metric-card--teacher">
+            <p>Домашки</p>
+            <strong id="teacher-homeworks-count-secondary">0</strong>
+            <span>Все задания, выданные ученикам</span>
+          </article>
+          <article class="metric-card">
+            <p>Изображения</p>
+            <strong id="teacher-homeworks-images-count">0</strong>
+            <span>Визуальные материалы внутри карточек заданий</span>
+          </article>
+          <article class="metric-card">
+            <p>Материалов</p>
+            <strong id="teacher-assets-count">0</strong>
+            <span>Общий объём контента платформы</span>
+          </article>
+        </section>
+
+        <section class="teacher-layout">
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Создание домашки</p>
+                <h2>Новое задание с изображениями</h2>
+              </div>
+            </div>
+
+            <form class="teacher-form" id="homework-form">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Предмет</span>
+                  <select id="homework-subject">
+                    <option>Химия</option>
+                    <option>Русский язык</option>
+                    <option>Профильная математика</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Название задания</span>
+                  <input id="homework-title" type="text" placeholder="Мини-пробник по органике" />
+                </label>
+                <label class="field">
+                  <span>Дедлайн</span>
+                  <input id="homework-deadline" type="datetime-local" />
+                </label>
+                <label class="field">
+                  <span>Курс / поток</span>
+                  <input id="homework-course" type="text" placeholder="11 класс · Основной поток" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Инструкция</span>
+                <textarea
+                  id="homework-instructions"
+                  rows="4"
+                  placeholder="Опиши, что нужно решить, на что обратить внимание и какой формат ответа ожидается."
+                ></textarea>
+              </label>
+
+              <label class="field">
+                <span>Изображения для домашки</span>
+                <input id="homework-images" type="file" accept="image/*" multiple />
+              </label>
+
+              <div class="upload-preview" id="homework-image-preview"></div>
+
+              <div class="teacher-form__actions">
+                <button class="primary-action primary-action--inline" type="submit">Сохранить домашку</button>
+                <p class="form-note" id="homework-form-note">
+                  Изображения будут видны ученику прямо в карточке задания.
+                </p>
+              </div>
+            </form>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Лента заданий</p>
+                <h2>Последние домашки на платформе</h2>
+              </div>
+            </div>
+            <div class="teacher-list" id="teacher-homeworks"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../main.js"></script>
+  </body>
+</html>

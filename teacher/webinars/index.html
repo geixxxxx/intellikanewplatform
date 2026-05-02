@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Вебинары</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body data-page="teacher-webinars">
+    <div class="app-shell">
+      <aside class="sidebar sidebar--teacher">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/teacher/dashboard/">Обзор</a>
+          <a class="sidebar-link" href="/teacher/students/">Ученики</a>
+          <a class="sidebar-link sidebar-link--active" href="/teacher/webinars/">Вебинары</a>
+          <a class="sidebar-link" href="/teacher/homeworks/">Домашки</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Раздел вебинаров</p>
+          <h3>Каталог вебинаров теперь работает как отдельная витрина: карточки, просмотр страницы вебинара и добавление ДЗ уже внутри самого материала.</h3>
+          <a class="ghost-action" href="/teacher/dashboard/">Вернуться к обзору</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по вебинарам</span>
+            <input type="text" placeholder="Название, предмет, преподаватель..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip student-chip--teacher">
+              <div class="student-chip__avatar student-chip__avatar--teacher" id="teacher-initials">ПР</div>
+              <div>
+                <strong id="teacher-name">Преподаватель</strong>
+                <span>Раздел вебинаров</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="section-card section-card--headline">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Вебинары и видео</p>
+              <h2>Каталог вебинаров по схеме карточка → просмотр → домашка внутри</h2>
+            </div>
+            <span class="badge" id="teacher-webinars-count">0</span>
+          </div>
+          <p class="section-copy">
+            Сначала создаётся сам вебинар, потом он попадает в каталог карточек. После открытия его
+            страницы можно смотреть запись и добавлять домашние задания прямо внутрь этого материала.
+          </p>
+        </section>
+
+        <section class="metrics-grid metrics-grid--teacher metrics-grid--compact">
+          <article class="metric-card metric-card--teacher">
+            <p>Эфиры</p>
+            <strong id="teacher-webinars-count-secondary">0</strong>
+            <span>Запланированные и активные прямые занятия</span>
+          </article>
+          <article class="metric-card">
+            <p>Видео</p>
+            <strong id="teacher-videos-count">0</strong>
+            <span>VK Video и YouTube внутри платформы</span>
+          </article>
+          <article class="metric-card">
+            <p>Все материалы</p>
+            <strong id="teacher-assets-count">0</strong>
+            <span>Общий объём контента в системе</span>
+          </article>
+        </section>
+
+        <section class="teacher-layout teacher-layout--webinars">
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Создание контента</p>
+                <h2>Добавить вебинар или видео</h2>
+              </div>
+            </div>
+
+            <form class="teacher-form" id="webinar-form">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Название вебинара</span>
+                  <input id="webinar-title" type="text" placeholder="Разбор 18 задания по химии" />
+                </label>
+                <label class="field">
+                  <span>Предмет</span>
+                  <select id="webinar-subject">
+                    <option>Химия</option>
+                    <option>Русский язык</option>
+                    <option>Профильная математика</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Формат</span>
+                  <select id="webinar-type">
+                    <option value="live">Видеотрансляция</option>
+                    <option value="vk">VK Video</option>
+                    <option value="youtube">YouTube</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Дата и время</span>
+                  <input id="webinar-date" type="datetime-local" />
+                </label>
+                <label class="field">
+                  <span>Преподаватель</span>
+                  <input id="webinar-teacher" type="text" placeholder="Мария Орлова" />
+                </label>
+                <label class="field">
+                  <span>Ссылка на трансляцию или видео</span>
+                  <input id="webinar-url" type="url" placeholder="https://youtube.com/watch?v=..." />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Описание</span>
+                <textarea
+                  id="webinar-description"
+                  rows="4"
+                  placeholder="Что будет на занятии, какие темы и какой итог получит ученик."
+                ></textarea>
+              </label>
+
+              <div class="teacher-form__actions">
+                <button class="primary-action primary-action--inline" type="submit">Сохранить вебинар</button>
+                <p class="form-note" id="webinar-form-note">
+                  Здесь же можно удалять уже опубликованные вебинары из списка справа.
+                </p>
+              </div>
+            </form>
+          </section>
+
+          <section class="section-card section-card--webinars">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Каталог материалов</p>
+                <h2>Открой вебинар как отдельный материал</h2>
+              </div>
+            </div>
+            <div class="webinar-showcase-grid webinar-showcase-grid--teacher" id="teacher-webinars"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../main.js"></script>
+  </body>
+</html>

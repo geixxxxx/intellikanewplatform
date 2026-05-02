@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Вебинар преподавателя</title>
+    <link rel="stylesheet" href="../../../styles.css" />
+  </head>
+  <body data-page="teacher-webinar-view">
+    <div class="app-shell">
+      <aside class="sidebar sidebar--teacher">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/teacher/dashboard/">Обзор</a>
+          <a class="sidebar-link" href="/teacher/students/">Ученики</a>
+          <a class="sidebar-link sidebar-link--active" href="/teacher/webinars/">Вебинары</a>
+          <a class="sidebar-link" href="/teacher/homeworks/">Домашки</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Работа с вебинаром</p>
+          <h3>На этой странице можно просмотреть материал и добавить домашнее задание прямо внутрь конкретного вебинара.</h3>
+          <a class="ghost-action" href="/teacher/webinars/">Назад к каталогу</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../..">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по вебинару</span>
+            <input type="text" placeholder="Тема, домашка, преподаватель..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip student-chip--teacher">
+              <div class="student-chip__avatar student-chip__avatar--teacher" id="teacher-initials">ПР</div>
+              <div>
+                <strong id="teacher-name">Преподаватель</strong>
+                <span>Страница вебинара</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero-card hero-card--teacher">
+          <div class="hero-card__copy">
+            <p class="eyebrow" id="teacher-webinar-subject">Вебинар</p>
+            <h1 id="teacher-webinar-title">Материал загружается</h1>
+            <p id="teacher-webinar-description">
+              Здесь будет описание занятия, формат просмотра и рабочая зона для домашних заданий.
+            </p>
+            <div class="hero-card__actions">
+              <a class="ghost-action ghost-action--light" href="/teacher/webinars/">К каталогу</a>
+              <a class="primary-action primary-action--inline" id="teacher-webinar-source-link" href="#" target="_blank" rel="noreferrer">Открыть источник</a>
+            </div>
+          </div>
+
+          <div class="hero-card__stats hero-card__stats--teacher">
+            <div class="teacher-summary-card">
+              <p>Формат</p>
+              <strong id="teacher-webinar-type">Видео</strong>
+              <span id="teacher-webinar-time">Дата вебинара</span>
+            </div>
+            <div class="teacher-summary-card">
+              <p>Домашек внутри</p>
+              <strong id="teacher-webinar-homeworks-count">0</strong>
+              <span id="teacher-webinar-teacher">Преподаватель</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="webinar-stage">
+          <section class="section-card webinar-stage__player">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Просмотр</p>
+                <h2>Вебинар внутри платформы</h2>
+              </div>
+            </div>
+            <div id="teacher-webinar-player"></div>
+          </section>
+
+          <section class="section-card webinar-stage__side">
+            <div class="webinar-stage__side-stack">
+              <section class="section-card section-card--nested">
+                <div class="section-heading section-heading--compact">
+                  <div>
+                    <p class="eyebrow">Оформление</p>
+                    <h2>Редактировать карточку вебинара</h2>
+                  </div>
+                </div>
+
+                <div class="webinar-design-preview" id="webinar-design-preview"></div>
+
+                <form class="teacher-form" id="webinar-design-form">
+                  <label class="field">
+                    <span>Название вебинара</span>
+                    <input id="webinar-design-title" type="text" placeholder="Название для карточки и страницы вебинара" />
+                  </label>
+
+                  <label class="field">
+                    <span>Картинка вебинара</span>
+                    <input id="webinar-design-image" type="file" accept="image/*" />
+                  </label>
+
+                  <label class="field field--checkbox">
+                    <input id="webinar-design-remove-cover" type="checkbox" />
+                    <span>Убрать текущую обложку и вернуть авто-оформление</span>
+                  </label>
+
+                  <div class="teacher-form__actions">
+                    <button class="primary-action primary-action--inline" type="submit">Сохранить оформление</button>
+                    <p class="form-note" id="webinar-design-form-note">
+                      Можно менять название и заменить обложку вебинара в любой момент.
+                    </p>
+                  </div>
+                </form>
+              </section>
+
+              <section class="section-card section-card--nested">
+                <div class="section-heading section-heading--compact">
+                  <div>
+                    <p class="eyebrow">Быстрое действие</p>
+                    <h2>Добавить домашку внутрь вебинара</h2>
+                  </div>
+                </div>
+
+                <form class="teacher-form" id="webinar-homework-form">
+                  <div class="form-grid">
+                    <label class="field">
+                      <span>Предмет</span>
+                      <select id="webinar-homework-subject">
+                        <option>Химия</option>
+                        <option>Русский язык</option>
+                        <option>Профильная математика</option>
+                      </select>
+                    </label>
+                    <label class="field">
+                      <span>Название задания</span>
+                      <input id="webinar-homework-title" type="text" placeholder="Практика после вебинара" />
+                    </label>
+                    <label class="field">
+                      <span>Дедлайн</span>
+                      <input id="webinar-homework-deadline" type="datetime-local" />
+                    </label>
+                    <label class="field">
+                      <span>Курс / поток</span>
+                      <input id="webinar-homework-course" type="text" placeholder="11 класс · Основной поток" />
+                    </label>
+                  </div>
+
+                  <label class="field">
+                    <span>Инструкция</span>
+                    <textarea
+                      id="webinar-homework-instructions"
+                      rows="4"
+                      placeholder="Опиши, что ученик должен сделать после просмотра этого вебинара."
+                    ></textarea>
+                  </label>
+
+                  <label class="field">
+                    <span>Изображения</span>
+                    <input id="webinar-homework-images" type="file" accept="image/*" multiple />
+                  </label>
+
+                  <div class="upload-preview" id="webinar-homework-preview"></div>
+
+                  <div class="teacher-form__actions">
+                    <button class="primary-action primary-action--inline" type="submit">Добавить ДЗ в вебинар</button>
+                    <p class="form-note" id="webinar-homework-form-note">
+                      Это задание будет видно ученику прямо внутри страницы этого вебинара.
+                    </p>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-grid content-grid--lower">
+          <section class="section-card section-card--tall">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Домашки вебинара</p>
+                <h2>Все задания, привязанные к этому материалу</h2>
+              </div>
+            </div>
+            <div class="teacher-list" id="teacher-webinar-homeworks"></div>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Каталог</p>
+                <h2>Другие вебинары</h2>
+              </div>
+            </div>
+            <div class="webinar-mini-list" id="teacher-related-webinars"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../../main.js"></script>
+  </body>
+</html>

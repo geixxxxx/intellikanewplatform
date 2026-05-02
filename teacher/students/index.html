@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Ученики</title>
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body data-page="teacher-students">
+    <div class="app-shell">
+      <aside class="sidebar sidebar--teacher">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/teacher/dashboard/">Обзор</a>
+          <a class="sidebar-link sidebar-link--active" href="/teacher/students/">Ученики</a>
+          <a class="sidebar-link" href="/teacher/webinars/">Вебинары</a>
+          <a class="sidebar-link" href="/teacher/homeworks/">Домашки</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">База платформы</p>
+          <h3>Раздел со всеми учениками, статусами аккаунтов и прогрессом по курсам.</h3>
+          <a class="ghost-action" href="/teacher/dashboard/">Вернуться к обзору</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по ученикам</span>
+            <input type="text" placeholder="Имя, email, курс..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip student-chip--teacher">
+              <div class="student-chip__avatar student-chip__avatar--teacher" id="teacher-initials">ПР</div>
+              <div>
+                <strong id="teacher-name">Преподаватель</strong>
+                <span>Раздел учеников</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="section-card section-card--headline">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Ученики платформы</p>
+              <h2>Все зарегистрированные аккаунты учеников</h2>
+            </div>
+            <span class="badge" id="teacher-students-count">0</span>
+          </div>
+          <p class="section-copy">
+            Здесь собрана вся база учеников: email, класс, экзамен, набор курсов и текущий
+            прогресс. Главная страница кабинета больше не перегружена этим списком.
+          </p>
+        </section>
+
+        <section class="metrics-grid metrics-grid--teacher metrics-grid--compact">
+          <article class="metric-card metric-card--teacher">
+            <p>Учеников</p>
+            <strong id="teacher-students-count-secondary">0</strong>
+            <span>Все зарегистрированные пользователи роли student</span>
+          </article>
+          <article class="metric-card">
+            <p>Материалов</p>
+            <strong id="teacher-assets-count">0</strong>
+            <span>Вся активность платформы по контенту</span>
+          </article>
+        </section>
+
+        <section class="section-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Реестр учеников</p>
+              <h2>Полный список</h2>
+            </div>
+          </div>
+          <div class="student-roster" id="teacher-students"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../main.js"></script>
+  </body>
+</html>

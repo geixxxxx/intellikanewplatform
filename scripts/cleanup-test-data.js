@@ -33,12 +33,22 @@ async function main() {
   try {
     await client.query("begin");
 
-    const uploads = await client.query(
+    const homeworkUploads = await client.query(
       `
         select hi.stored_name
         from homework_images hi
         join homeworks h on h.id = hi.homework_id
         where h.teacher_name like $1
+      `,
+      ["Мария Тестова %"]
+    );
+
+    const webinarCovers = await client.query(
+      `
+        select cover_image_stored_name
+        from webinars
+        where teacher_name like $1
+          and cover_image_stored_name is not null
       `,
       ["Мария Тестова %"]
     );
@@ -62,7 +72,7 @@ async function main() {
 
     await client.query("commit");
 
-    for (const row of uploads.rows) {
+    for (const row of [...homeworkUploads.rows, ...webinarCovers.rows.map((item) => ({ stored_name: item.cover_image_stored_name }))]) {
       await unlinkIfExists(path.join(UPLOADS_DIR, row.stored_name));
     }
 
@@ -71,7 +81,7 @@ async function main() {
         {
           ok: true,
           removedUsers: "student.%@example.com | teacher.%@example.com",
-          removedUploads: uploads.rows.length
+          removedUploads: homeworkUploads.rows.length + webinarCovers.rows.length
         },
         null,
         2

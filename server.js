@@ -66,8 +66,22 @@ const HTML_ROUTE_MAP = {
   "/login/": { file: "login/index.html" },
   "/student/dashboard": { file: "student/dashboard/index.html", role: "student" },
   "/student/dashboard/": { file: "student/dashboard/index.html", role: "student" },
+  "/student/webinars": { file: "student/webinars/index.html", role: "student" },
+  "/student/webinars/": { file: "student/webinars/index.html", role: "student" },
+  "/student/webinars/view": { file: "student/webinars/view/index.html", role: "student" },
+  "/student/webinars/view/": { file: "student/webinars/view/index.html", role: "student" },
+  "/student/homeworks/view": { file: "student/homeworks/view/index.html", role: "student" },
+  "/student/homeworks/view/": { file: "student/homeworks/view/index.html", role: "student" },
   "/teacher/dashboard": { file: "teacher/dashboard/index.html", role: "teacher" },
-  "/teacher/dashboard/": { file: "teacher/dashboard/index.html", role: "teacher" }
+  "/teacher/dashboard/": { file: "teacher/dashboard/index.html", role: "teacher" },
+  "/teacher/students": { file: "teacher/students/index.html", role: "teacher" },
+  "/teacher/students/": { file: "teacher/students/index.html", role: "teacher" },
+  "/teacher/webinars": { file: "teacher/webinars/index.html", role: "teacher" },
+  "/teacher/webinars/": { file: "teacher/webinars/index.html", role: "teacher" },
+  "/teacher/webinars/view": { file: "teacher/webinars/view/index.html", role: "teacher" },
+  "/teacher/webinars/view/": { file: "teacher/webinars/view/index.html", role: "teacher" },
+  "/teacher/homeworks": { file: "teacher/homeworks/index.html", role: "teacher" },
+  "/teacher/homeworks/": { file: "teacher/homeworks/index.html", role: "teacher" }
 };
 
 let pool;
@@ -277,15 +291,18 @@ function getVkEmbedUrl(value) {
 }
 
 function resolveEmbedUrl(type, sourceUrl) {
+  const youtubeEmbed = getYouTubeEmbedUrl(sourceUrl);
+  const vkEmbed = getVkEmbedUrl(sourceUrl);
+
   if (type === "youtube") {
-    return getYouTubeEmbedUrl(sourceUrl);
+    return youtubeEmbed;
   }
 
   if (type === "vk") {
-    return getVkEmbedUrl(sourceUrl);
+    return vkEmbed;
   }
 
-  return "";
+  return youtubeEmbed || vkEmbed || "";
 }
 
 async function hashPassword(password) {
@@ -411,6 +428,9 @@ async function runMigrations() {
         type text not null check (type in ('live', 'youtube', 'vk')),
         source_url text,
         embed_url text,
+        cover_image_stored_name text,
+        cover_image_original_name text,
+        cover_image_mime_type text,
         teacher_id text references users(id) on delete set null,
         teacher_name text not null,
         scheduled_at timestamptz not null,
@@ -427,6 +447,7 @@ async function runMigrations() {
         deadline timestamptz not null,
         course_label text not null,
         instructions text not null,
+        webinar_id text references webinars(id) on delete set null,
         teacher_id text references users(id) on delete set null,
         teacher_name text not null,
         created_at timestamptz not null default now()
@@ -443,6 +464,19 @@ async function runMigrations() {
         sort_order integer not null default 0
       );
 
+      create table if not exists homework_submissions (
+        id text primary key,
+        homework_id text not null references homeworks(id) on delete cascade,
+        student_id text not null references users(id) on delete cascade,
+        answer_text text not null default '',
+        status text not null check (status in ('draft', 'submitted')) default 'draft',
+        submitted_at timestamptz,
+        updated_at timestamptz not null default now(),
+        unique (homework_id, student_id)
+      );
+
+      create index if not exists idx_homework_submissions_student_id on homework_submissions(student_id);
+
       create table if not exists announcements (
         id text primary key,
         title text not null,
@@ -451,6 +485,21 @@ async function runMigrations() {
         badge text not null,
         created_at timestamptz not null default now()
       );
+
+      alter table webinars
+      add column if not exists announcement_id text references announcements(id) on delete set null;
+
+      alter table webinars
+      add column if not exists cover_image_stored_name text;
+
+      alter table webinars
+      add column if not exists cover_image_original_name text;
+
+      alter table webinars
+      add column if not exists cover_image_mime_type text;
+
+      alter table homeworks
+      add column if not exists webinar_id text references webinars(id) on delete set null;
     `);
   } finally {
     client.release();
@@ -599,64 +648,58 @@ async function parseMultipartForm(req) {
 }
 
 async function collectLandingSummary() {
-  const client = await pool.connect();
+  const [studentsCount, webinarsCount, homeworksCount, announcementCount, webinars, homeworks] =
+    await Promise.all([
+      pool.query("select count(*)::int as count from users where role = 'student'"),
+      pool.query("select count(*)::int as count from webinars"),
+      pool.query("select count(*)::int as count from homeworks"),
+      pool.query("select count(*)::int as count from announcements"),
+      pool.query(
+        `
+          select id, title, subject, type, teacher_name, scheduled_at, description
+          from webinars
+          order by scheduled_at asc
+          limit 3
+        `
+      ),
+      pool.query(
+        `
+          select
+            h.id,
+            h.subject,
+            h.title,
+            h.instructions,
+            hi.stored_name
+          from homeworks h
+          left join lateral (
+            select stored_name
+            from homework_images
+            where homework_id = h.id
+            order by sort_order asc
+            limit 1
+          ) hi on true
+          order by h.created_at desc
+          limit 2
+        `
+      )
+    ]);
 
-  try {
-    const [studentsCount, webinarsCount, homeworksCount, announcementCount, webinars, homeworks] =
-      await Promise.all([
-        client.query("select count(*)::int as count from users where role = 'student'"),
-        client.query("select count(*)::int as count from webinars"),
-        client.query("select count(*)::int as count from homeworks"),
-        client.query("select count(*)::int as count from announcements"),
-        client.query(
-          `
-            select id, title, subject, type, teacher_name, scheduled_at, description
-            from webinars
-            order by scheduled_at asc
-            limit 3
-          `
-        ),
-        client.query(
-          `
-            select
-              h.id,
-              h.subject,
-              h.title,
-              h.instructions,
-              hi.stored_name
-            from homeworks h
-            left join lateral (
-              select stored_name
-              from homework_images
-              where homework_id = h.id
-              order by sort_order asc
-              limit 1
-            ) hi on true
-            order by h.created_at desc
-            limit 2
-          `
-        )
-      ]);
-
-    return {
-      counts: {
-        students: studentsCount.rows[0].count,
-        webinars: webinarsCount.rows[0].count,
-        homeworks: homeworksCount.rows[0].count,
-        announcements: announcementCount.rows[0].count
-      },
-      webinars: webinars.rows.map((item) => ({
-        ...item,
-        sourceTypeLabel: getSourceTypeLabel(item.type)
-      })),
-      homeworks: homeworks.rows.map((item) => ({
-        ...item,
-        imageUrl: item.stored_name ? `/uploads/${item.stored_name}` : ""
-      }))
-    };
-  } finally {
-    client.release();
-  }
+  return {
+    counts: {
+      students: studentsCount.rows[0].count,
+      webinars: webinarsCount.rows[0].count,
+      homeworks: homeworksCount.rows[0].count,
+      announcements: announcementCount.rows[0].count
+    },
+    webinars: webinars.rows.map((item) => ({
+      ...item,
+      sourceTypeLabel: getSourceTypeLabel(item.type)
+    })),
+    homeworks: homeworks.rows.map((item) => ({
+      ...item,
+      imageUrl: item.stored_name ? `/uploads/${item.stored_name}` : ""
+    }))
+  };
 }
 
 async function collectAnnouncements(limit = 4) {
@@ -682,8 +725,22 @@ async function collectAnnouncements(limit = 4) {
 async function collectWebinars() {
   const result = await pool.query(
     `
-      select id, title, subject, type, source_url, embed_url, teacher_name, scheduled_at, description, created_at
-      from webinars
+      select
+        w.id,
+        w.title,
+        w.subject,
+        w.type,
+        w.source_url,
+        w.embed_url,
+        w.cover_image_stored_name,
+        w.teacher_name,
+        w.scheduled_at,
+        w.description,
+        w.created_at,
+        coalesce(count(h.id), 0)::int as homework_count
+      from webinars w
+      left join homeworks h on h.webinar_id = w.id
+      group by w.id
       order by scheduled_at asc, created_at desc
     `
   );
@@ -695,14 +752,16 @@ async function collectWebinars() {
     type: item.type,
     sourceUrl: item.source_url || "",
     embedUrl: item.embed_url || "",
+    coverImageUrl: item.cover_image_stored_name ? `/uploads/${item.cover_image_stored_name}` : "",
     teacher: item.teacher_name,
     scheduledAt: item.scheduled_at,
     description: item.description,
-    sourceTypeLabel: getSourceTypeLabel(item.type)
+    sourceTypeLabel: getSourceTypeLabel(item.type),
+    homeworkCount: item.homework_count
   }));
 }
 
-async function collectHomeworks() {
+async function collectHomeworks(studentUserId = null) {
   const result = await pool.query(
     `
       select
@@ -712,16 +771,25 @@ async function collectHomeworks() {
         h.deadline,
         h.course_label,
         h.instructions,
+        h.webinar_id,
         h.teacher_name,
         h.created_at,
+        w.title as webinar_title,
+        hs.answer_text as submission_answer_text,
+        hs.status as submission_status,
+        hs.submitted_at as submission_submitted_at,
+        hs.updated_at as submission_updated_at,
         hi.id as image_id,
         hi.stored_name,
         hi.mime_type,
         hi.sort_order
       from homeworks h
+      left join webinars w on w.id = h.webinar_id
+      left join homework_submissions hs on hs.homework_id = h.id and hs.student_id = $1
       left join homework_images hi on hi.homework_id = h.id
       order by h.deadline asc, h.created_at desc, hi.sort_order asc
-    `
+    `,
+    [studentUserId]
   );
 
   const grouped = new Map();
@@ -735,8 +803,14 @@ async function collectHomeworks() {
         deadline: row.deadline,
         courseLabel: row.course_label,
         instructions: row.instructions,
+        webinarId: row.webinar_id || "",
+        webinarTitle: row.webinar_title || "",
         teacher: row.teacher_name,
         createdAt: row.created_at,
+        answerText: row.submission_answer_text || "",
+        submissionStatus: row.submission_status || "",
+        submissionSubmittedAt: row.submission_submitted_at || "",
+        submissionUpdatedAt: row.submission_updated_at || "",
         images: []
       });
     }
@@ -749,186 +823,237 @@ async function collectHomeworks() {
   return [...grouped.values()];
 }
 
-async function collectStudentDashboard(userId) {
-  const client = await pool.connect();
+async function collectStudentHomeworkDetail(userId, homeworkId) {
+  const trimmedHomeworkId = String(homeworkId || "").trim();
 
-  try {
-    const [userResult, profileResult, enrollmentsResult, webinars, homeworks, announcements] =
-      await Promise.all([
-        client.query(
-          `
-            select id, role, full_name, email, grade, exam_year, created_at
-            from users
-            where id = $1
-            limit 1
-          `,
-          [userId]
-        ),
-        client.query(
-          `
-            select mentor_name, lives, streak_days, solved_tasks, predicted_score, overall_progress
-            from student_profiles
-            where user_id = $1
-            limit 1
-          `,
-          [userId]
-        ),
-        client.query(
-          `
-            select
-              c.id,
-              c.title,
-              c.subject,
-              c.mentor_name,
-              c.description,
-              e.progress,
-              e.score,
-              e.next_topic
-            from enrollments e
-            join courses c on c.id = e.course_id
-            where e.user_id = $1
-            order by c.sort_order asc
-          `,
-          [userId]
-        ),
-        collectWebinars(),
-        collectHomeworks(),
-        collectAnnouncements()
-      ]);
-
-    const user = userResult.rows[0];
-    const profile = profileResult.rows[0];
-    const courses = enrollmentsResult.rows.map((row) => ({
-      id: row.id,
-      name: row.title,
-      subject: row.subject,
-      mentor: row.mentor_name,
-      description: row.description,
-      progress: row.progress,
-      score: row.score,
-      nextTopic: row.next_topic
-    }));
-
-    return {
-      user: {
-        id: user.id,
-        fullName: user.full_name,
-        email: user.email,
-        grade: user.grade || "Без класса",
-        examYear: user.exam_year || "",
-        initials: getInitials(user.full_name)
-      },
-      profile: {
-        mentorName: profile?.mentor_name || "Арина",
-        lives: profile?.lives || 0,
-        streakDays: profile?.streak_days || 0,
-        solvedTasks: profile?.solved_tasks || 0,
-        predictedScore: profile?.predicted_score || 0,
-        overallProgress: profile?.overall_progress || 0
-      },
-      courses,
-      webinars,
-      homeworks,
-      announcements
-    };
-  } finally {
-    client.release();
+  if (!trimmedHomeworkId) {
+    return null;
   }
+
+  const [userResult, homeworks, webinars] = await Promise.all([
+    pool.query(
+      `
+        select id, role, full_name, email, grade, exam_year, created_at
+        from users
+        where id = $1
+        limit 1
+      `,
+      [userId]
+    ),
+    collectHomeworks(userId),
+    collectWebinars()
+  ]);
+
+  if (userResult.rowCount === 0) {
+    return null;
+  }
+
+  const homework = homeworks.find((item) => item.id === trimmedHomeworkId);
+
+  if (!homework) {
+    return null;
+  }
+
+  const linkedWebinar = homework.webinarId ? webinars.find((item) => item.id === homework.webinarId) || null : null;
+  const relatedHomeworks = homeworks
+    .filter((item) => {
+      if (item.id === homework.id) {
+        return false;
+      }
+
+      if (homework.webinarId && item.webinarId === homework.webinarId) {
+        return true;
+      }
+
+      return item.subject === homework.subject;
+    })
+    .slice(0, 4);
+
+  const user = userResult.rows[0];
+
+  return {
+    user: {
+      id: user.id,
+      fullName: user.full_name,
+      email: user.email,
+      grade: user.grade || "Без класса",
+      examYear: user.exam_year || "",
+      initials: getInitials(user.full_name)
+    },
+    homework,
+    linkedWebinar,
+    relatedHomeworks
+  };
 }
 
-async function collectTeacherDashboard(userId) {
-  const client = await pool.connect();
-
-  try {
-    const [userResult, studentsResult, webinars, homeworks, countsResult] = await Promise.all([
-      client.query(
+async function collectStudentDashboard(userId) {
+  const [userResult, profileResult, enrollmentsResult, webinars, homeworks, announcements] =
+    await Promise.all([
+      pool.query(
         `
-          select id, full_name, email, created_at
+          select id, role, full_name, email, grade, exam_year, created_at
           from users
           where id = $1
           limit 1
         `,
         [userId]
       ),
-      client.query(
+      pool.query(
+        `
+          select mentor_name, lives, streak_days, solved_tasks, predicted_score, overall_progress
+          from student_profiles
+          where user_id = $1
+          limit 1
+        `,
+        [userId]
+      ),
+      pool.query(
         `
           select
-            u.id,
-            u.full_name,
-            u.email,
-            u.grade,
-            u.exam_year,
-            u.created_at,
-            sp.mentor_name,
-            sp.lives,
-            sp.streak_days,
-            sp.solved_tasks,
-            sp.predicted_score,
-            sp.overall_progress,
-            coalesce(string_agg(c.title, ' · ' order by c.sort_order), '') as courses
-          from users u
-          left join student_profiles sp on sp.user_id = u.id
-          left join enrollments e on e.user_id = u.id
-          left join courses c on c.id = e.course_id
-          where u.role = 'student'
-          group by u.id, sp.user_id
-          order by u.created_at desc
-        `
+            c.id,
+            c.title,
+            c.subject,
+            c.mentor_name,
+            c.description,
+            e.progress,
+            e.score,
+            e.next_topic
+          from enrollments e
+          join courses c on c.id = e.course_id
+          where e.user_id = $1
+          order by c.sort_order asc
+        `,
+        [userId]
       ),
       collectWebinars(),
-      collectHomeworks(),
-      client.query(
-        `
-          select
-            (select count(*)::int from users where role = 'student') as students_count,
-            (select count(*)::int from webinars where type = 'live') as live_count,
-            (select count(*)::int from webinars where type <> 'live') as video_count,
-            (select count(*)::int from homeworks) as homework_count,
-            (select count(*)::int from homework_images) as homework_image_count
-        `
-      )
+      collectHomeworks(userId),
+      collectAnnouncements()
     ]);
 
-    const teacher = userResult.rows[0];
-    const counts = countsResult.rows[0];
+  const user = userResult.rows[0];
+  const profile = profileResult.rows[0];
+  const courses = enrollmentsResult.rows.map((row) => ({
+    id: row.id,
+    name: row.title,
+    subject: row.subject,
+    mentor: row.mentor_name,
+    description: row.description,
+    progress: row.progress,
+    score: row.score,
+    nextTopic: row.next_topic
+  }));
 
-    return {
-      user: {
-        id: teacher.id,
-        fullName: teacher.full_name,
-        email: teacher.email,
-        initials: getInitials(teacher.full_name)
-      },
-      counts: {
-        students: counts.students_count,
-        liveWebinars: counts.live_count,
-        videos: counts.video_count,
-        homeworks: counts.homework_count,
-        homeworkImages: counts.homework_image_count,
-        assets: counts.live_count + counts.video_count + counts.homework_count
-      },
-      students: studentsResult.rows.map((student) => ({
-        id: student.id,
-        fullName: student.full_name,
-        email: student.email,
-        grade: student.grade || "Без класса",
-        examYear: student.exam_year || "",
-        mentorName: student.mentor_name || "Арина",
-        lives: student.lives || 0,
-        streakDays: student.streak_days || 0,
-        solvedTasks: student.solved_tasks || 0,
-        predictedScore: student.predicted_score || 0,
-        overallProgress: student.overall_progress || 0,
-        courses: student.courses,
-        initials: getInitials(student.full_name),
-        lastSeen: formatDateTime(student.created_at)
-      })),
-      webinars,
-      homeworks
-    };
-  } finally {
-    client.release();
-  }
+  return {
+    user: {
+      id: user.id,
+      fullName: user.full_name,
+      email: user.email,
+      grade: user.grade || "Без класса",
+      examYear: user.exam_year || "",
+      initials: getInitials(user.full_name)
+    },
+    profile: {
+      mentorName: profile?.mentor_name || "Арина",
+      lives: profile?.lives || 0,
+      streakDays: profile?.streak_days || 0,
+      solvedTasks: profile?.solved_tasks || 0,
+      predictedScore: profile?.predicted_score || 0,
+      overallProgress: profile?.overall_progress || 0
+    },
+    courses,
+    webinars,
+    homeworks,
+    announcements
+  };
+}
+
+async function collectTeacherDashboard(userId) {
+  const [userResult, studentsResult, webinars, homeworks, countsResult] = await Promise.all([
+    pool.query(
+      `
+        select id, full_name, email, created_at
+        from users
+        where id = $1
+        limit 1
+      `,
+      [userId]
+    ),
+    pool.query(
+      `
+        select
+          u.id,
+          u.full_name,
+          u.email,
+          u.grade,
+          u.exam_year,
+          u.created_at,
+          sp.mentor_name,
+          sp.lives,
+          sp.streak_days,
+          sp.solved_tasks,
+          sp.predicted_score,
+          sp.overall_progress,
+          coalesce(string_agg(c.title, ' · ' order by c.sort_order), '') as courses
+        from users u
+        left join student_profiles sp on sp.user_id = u.id
+        left join enrollments e on e.user_id = u.id
+        left join courses c on c.id = e.course_id
+        where u.role = 'student'
+        group by u.id, sp.user_id
+        order by u.created_at desc
+      `
+    ),
+    collectWebinars(),
+    collectHomeworks(),
+    pool.query(
+      `
+        select
+          (select count(*)::int from users where role = 'student') as students_count,
+          (select count(*)::int from webinars where type = 'live') as live_count,
+          (select count(*)::int from webinars where type <> 'live') as video_count,
+          (select count(*)::int from homeworks) as homework_count,
+          (select count(*)::int from homework_images) as homework_image_count
+      `
+    )
+  ]);
+
+  const teacher = userResult.rows[0];
+  const counts = countsResult.rows[0];
+
+  return {
+    user: {
+      id: teacher.id,
+      fullName: teacher.full_name,
+      email: teacher.email,
+      initials: getInitials(teacher.full_name)
+    },
+    counts: {
+      students: counts.students_count,
+      liveWebinars: counts.live_count,
+      videos: counts.video_count,
+      homeworks: counts.homework_count,
+      homeworkImages: counts.homework_image_count,
+      assets: counts.live_count + counts.video_count + counts.homework_count
+    },
+    students: studentsResult.rows.map((student) => ({
+      id: student.id,
+      fullName: student.full_name,
+      email: student.email,
+      grade: student.grade || "Без класса",
+      examYear: student.exam_year || "",
+      mentorName: student.mentor_name || "Арина",
+      lives: student.lives || 0,
+      streakDays: student.streak_days || 0,
+      solvedTasks: student.solved_tasks || 0,
+      predictedScore: student.predicted_score || 0,
+      overallProgress: student.overall_progress || 0,
+      courses: student.courses,
+      initials: getInitials(student.full_name),
+      lastSeen: formatDateTime(student.created_at)
+    })),
+    webinars,
+    homeworks
+  };
 }
 
 function getInitials(value) {
@@ -1048,6 +1173,20 @@ async function saveFiles(files) {
   }
 
   return stored;
+}
+
+async function unlinkUploadIfExists(storedName) {
+  if (!storedName) {
+    return;
+  }
+
+  try {
+    await fs.unlink(path.join(UPLOADS_DIR, storedName));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
 }
 
 async function handleRegister(req, res) {
@@ -1274,26 +1413,8 @@ async function handleCreateWebinar(req, res, session) {
   try {
     await client.query("begin");
 
-    await client.query(
-      `
-        insert into webinars (
-          id, title, subject, type, source_url, embed_url, teacher_id, teacher_name, scheduled_at, description
-        )
-        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      `,
-      [
-        crypto.randomUUID(),
-        title,
-        subject,
-        type,
-        sourceUrl || null,
-        embedUrl || null,
-        session.user_id,
-        session.full_name,
-        scheduledAt,
-        description
-      ]
-    );
+    const webinarId = crypto.randomUUID();
+    const announcementId = crypto.randomUUID();
 
     await client.query(
       `
@@ -1301,11 +1422,33 @@ async function handleCreateWebinar(req, res, session) {
         values ($1, $2, $3, $4, $5)
       `,
       [
-        crypto.randomUUID(),
+        announcementId,
         "Новый вебинар опубликован",
         `${session.full_name} добавил материал «${title}» по предмету ${subject}.`,
         session.full_name,
         "WEB"
+      ]
+    );
+
+    await client.query(
+      `
+        insert into webinars (
+          id, title, subject, type, source_url, embed_url, announcement_id, teacher_id, teacher_name, scheduled_at, description
+        )
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `,
+      [
+        webinarId,
+        title,
+        subject,
+        type,
+        sourceUrl || null,
+        embedUrl || null,
+        announcementId,
+        session.user_id,
+        session.full_name,
+        scheduledAt,
+        description
       ]
     );
 
@@ -1315,6 +1458,212 @@ async function handleCreateWebinar(req, res, session) {
     await client.query("rollback");
     console.error(error);
     sendError(res, 500, "Не удалось сохранить вебинар.");
+  } finally {
+    client.release();
+  }
+}
+
+async function handleUpdateWebinarDesign(req, res, session, webinarId) {
+  const trimmedId = String(webinarId || "").trim();
+
+  if (!trimmedId) {
+    return sendError(res, 400, "Не удалось определить вебинар для редактирования.");
+  }
+
+  let formData;
+
+  try {
+    formData = await parseMultipartForm(req);
+  } catch (error) {
+    console.error(error);
+    return sendError(res, 400, "Не удалось разобрать форму редактирования вебинара.");
+  }
+
+  const title = String(formData.get("title") || "").trim();
+  const removeCover = String(formData.get("removeCover") || "").trim() === "true";
+  const fileCandidate = formData
+    .getAll("coverImage")
+    .find((item) => item && typeof item === "object" && typeof item.arrayBuffer === "function");
+
+  if (title.length < 2) {
+    return sendError(res, 400, "Название вебинара должно содержать минимум 2 символа.");
+  }
+
+  let storedFiles = [];
+
+  try {
+    storedFiles = fileCandidate ? await saveFiles([fileCandidate]) : [];
+  } catch (error) {
+    return sendError(res, 400, error.message);
+  }
+
+  const nextCover = storedFiles[0] || null;
+  const client = await pool.connect();
+  let obsoleteCover = "";
+  let committed = false;
+
+  try {
+    await client.query("begin");
+
+    const currentResult = await client.query(
+      `
+        select
+          id,
+          subject,
+          teacher_name,
+          announcement_id,
+          cover_image_stored_name,
+          cover_image_original_name,
+          cover_image_mime_type
+        from webinars
+        where id = $1 and teacher_id = $2
+        limit 1
+      `,
+      [trimmedId, session.user_id]
+    );
+
+    if (currentResult.rowCount === 0) {
+      await client.query("rollback");
+
+      if (nextCover) {
+        await unlinkUploadIfExists(nextCover.storedName);
+      }
+
+      return sendError(res, 404, "Вебинар не найден или недоступен для редактирования.");
+    }
+
+    const current = currentResult.rows[0];
+    obsoleteCover = current.cover_image_stored_name || "";
+
+    const coverStoredName = nextCover ? nextCover.storedName : removeCover ? null : obsoleteCover || null;
+    const coverOriginalName = nextCover
+      ? nextCover.originalName
+      : removeCover
+        ? null
+        : current.cover_image_original_name || null;
+    const coverMimeType = nextCover ? nextCover.mimeType : removeCover ? null : current.cover_image_mime_type || null;
+
+    await client.query(
+      `
+        update webinars
+        set
+          title = $2,
+          cover_image_stored_name = $3,
+          cover_image_original_name = $4,
+          cover_image_mime_type = $5
+        where id = $1
+      `,
+      [trimmedId, title, coverStoredName, coverOriginalName, coverMimeType]
+    );
+
+    if (current.announcement_id) {
+      await client.query(
+        `
+          update announcements
+          set body = $2
+          where id = $1
+        `,
+        [
+          current.announcement_id,
+          `${current.teacher_name} добавил материал «${title}» по предмету ${current.subject}.`
+        ]
+      );
+    }
+
+    await client.query("commit");
+    committed = true;
+
+    if (nextCover && obsoleteCover) {
+      try {
+        await unlinkUploadIfExists(obsoleteCover);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (!nextCover && removeCover && obsoleteCover) {
+      try {
+        await unlinkUploadIfExists(obsoleteCover);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    return json(res, 200, {
+      ok: true,
+      message: "Оформление вебинара обновлено."
+    });
+  } catch (error) {
+    if (!committed) {
+      await client.query("rollback");
+    }
+    console.error(error);
+
+    if (nextCover) {
+      await unlinkUploadIfExists(nextCover.storedName);
+    }
+
+    return sendError(res, 500, "Не удалось обновить оформление вебинара.");
+  } finally {
+    client.release();
+  }
+}
+
+async function handleDeleteWebinar(res, webinarId) {
+  const trimmedId = String(webinarId || "").trim();
+
+  if (!trimmedId) {
+    return sendError(res, 400, "Не удалось определить вебинар для удаления.");
+  }
+
+  const client = await pool.connect();
+  let coverStoredName = "";
+  let committed = false;
+
+  try {
+    await client.query("begin");
+
+    const result = await client.query(
+      `
+        delete from webinars
+        where id = $1
+        returning id, announcement_id, cover_image_stored_name
+      `,
+      [trimmedId]
+    );
+
+    if (result.rowCount === 0) {
+      await client.query("rollback");
+      return sendError(res, 404, "Вебинар не найден или уже удалён.");
+    }
+
+    if (result.rows[0].announcement_id) {
+      await client.query("delete from announcements where id = $1", [result.rows[0].announcement_id]);
+    }
+
+    coverStoredName = result.rows[0].cover_image_stored_name || "";
+
+    await client.query("commit");
+    committed = true;
+
+    if (coverStoredName) {
+      try {
+        await unlinkUploadIfExists(coverStoredName);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    return json(res, 200, {
+      ok: true,
+      message: "Вебинар удалён."
+    });
+  } catch (error) {
+    if (!committed) {
+      await client.query("rollback");
+    }
+    console.error(error);
+    return sendError(res, 500, "Не удалось удалить вебинар.");
   } finally {
     client.release();
   }
@@ -1335,6 +1684,7 @@ async function handleCreateHomework(req, res, session) {
   const deadlineValue = String(formData.get("deadline") || "").trim();
   const courseLabel = String(formData.get("courseLabel") || "").trim();
   const instructions = String(formData.get("instructions") || "").trim();
+  const webinarId = String(formData.get("webinarId") || "").trim();
   const deadline = deadlineValue ? new Date(deadlineValue) : null;
 
   if (!subject || !title || !courseLabel || !instructions || !deadline || Number.isNaN(deadline.getTime())) {
@@ -1358,16 +1708,37 @@ async function handleCreateHomework(req, res, session) {
   try {
     await client.query("begin");
 
+    let webinarTitle = "";
+
+    if (webinarId) {
+      const webinarResult = await client.query(
+        `
+          select title
+          from webinars
+          where id = $1
+          limit 1
+        `,
+        [webinarId]
+      );
+
+      if (webinarResult.rowCount === 0) {
+        await client.query("rollback");
+        return sendError(res, 404, "Вебинар для этой домашки не найден.");
+      }
+
+      webinarTitle = webinarResult.rows[0].title;
+    }
+
     const homeworkId = crypto.randomUUID();
 
     await client.query(
       `
         insert into homeworks (
-          id, subject, title, deadline, course_label, instructions, teacher_id, teacher_name
+          id, subject, title, deadline, course_label, instructions, webinar_id, teacher_id, teacher_name
         )
-        values ($1, $2, $3, $4, $5, $6, $7, $8)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
-      [homeworkId, subject, title, deadline, courseLabel, instructions, session.user_id, session.full_name]
+      [homeworkId, subject, title, deadline, courseLabel, instructions, webinarId || null, session.user_id, session.full_name]
     );
 
     for (const [index, file] of storedFiles.entries()) {
@@ -1387,8 +1758,10 @@ async function handleCreateHomework(req, res, session) {
       `,
       [
         crypto.randomUUID(),
-        "Новая домашка в курсе",
-        `${session.full_name} добавил домашнее задание «${title}» по предмету ${subject}.`,
+        webinarTitle ? "Новая домашка к вебинару" : "Новая домашка в курсе",
+        webinarTitle
+          ? `${session.full_name} добавил домашнее задание «${title}» к вебинару «${webinarTitle}».`
+          : `${session.full_name} добавил домашнее задание «${title}» по предмету ${subject}.`,
         session.full_name,
         "HW"
       ]
@@ -1403,6 +1776,78 @@ async function handleCreateHomework(req, res, session) {
   } finally {
     client.release();
   }
+}
+
+async function handleStudentHomeworkAnswer(req, res, session, homeworkId) {
+  const trimmedHomeworkId = String(homeworkId || "").trim();
+
+  if (!trimmedHomeworkId) {
+    return sendError(res, 400, "Не удалось определить домашнее задание.");
+  }
+
+  let payload;
+
+  try {
+    payload = await parseJsonBody(req);
+  } catch (error) {
+    return sendError(res, 400, "Некорректный JSON в ответе ученика.");
+  }
+
+  const answerText = String(payload.answerText || "").trim();
+  const status = String(payload.status || "").trim();
+
+  if (!["draft", "submitted"].includes(status)) {
+    return sendError(res, 400, "Не удалось определить статус ответа.");
+  }
+
+  if (answerText.length < 2) {
+    return sendError(res, 400, "Введи ответ перед сохранением.");
+  }
+
+  const homeworkResult = await pool.query(
+    `
+      select id
+      from homeworks
+      where id = $1
+      limit 1
+    `,
+    [trimmedHomeworkId]
+  );
+
+  if (homeworkResult.rowCount === 0) {
+    return sendError(res, 404, "Домашнее задание не найдено.");
+  }
+
+  const submissionId = crypto.randomUUID();
+  const submittedAt = status === "submitted" ? new Date() : null;
+  const result = await pool.query(
+    `
+      insert into homework_submissions (
+        id, homework_id, student_id, answer_text, status, submitted_at, updated_at
+      )
+      values ($1, $2, $3, $4, $5, $6, now())
+      on conflict (homework_id, student_id) do update set
+        answer_text = excluded.answer_text,
+        status = excluded.status,
+        submitted_at = excluded.submitted_at,
+        updated_at = now()
+      returning answer_text, status, submitted_at, updated_at
+    `,
+    [submissionId, trimmedHomeworkId, session.user_id, answerText, status, submittedAt]
+  );
+
+  const submission = result.rows[0];
+
+  return json(res, 200, {
+    ok: true,
+    message: status === "submitted" ? "Ответ отправлен и сохранён в платформе." : "Черновик ответа сохранён.",
+    submission: {
+      answerText: submission.answer_text,
+      status: submission.status,
+      submittedAt: submission.submitted_at,
+      updatedAt: submission.updated_at
+    }
+  });
 }
 
 async function handleApi(req, res, url, session) {
@@ -1452,6 +1897,30 @@ async function handleApi(req, res, url, session) {
     return json(res, 200, { ok: true, ...payload });
   }
 
+  if (url.pathname.startsWith("/api/student/homeworks/") && url.pathname.endsWith("/answer") && req.method === "POST") {
+    if (!session || session.role !== "student") {
+      return sendError(res, 401, "Только ученик может отправлять ответы на домашку.");
+    }
+
+    const homeworkId = decodeURIComponent(url.pathname.replace("/api/student/homeworks/", "").replace("/answer", ""));
+    return handleStudentHomeworkAnswer(req, res, session, homeworkId);
+  }
+
+  if (url.pathname.startsWith("/api/student/homeworks/") && req.method === "GET") {
+    if (!session || session.role !== "student") {
+      return sendError(res, 401, "Вход для ученика обязателен.");
+    }
+
+    const homeworkId = decodeURIComponent(url.pathname.replace("/api/student/homeworks/", ""));
+    const payload = await collectStudentHomeworkDetail(session.user_id, homeworkId);
+
+    if (!payload) {
+      return sendError(res, 404, "Домашнее задание не найдено.");
+    }
+
+    return json(res, 200, { ok: true, ...payload });
+  }
+
   if (url.pathname === "/api/teacher/dashboard" && req.method === "GET") {
     if (!session || session.role !== "teacher") {
       return sendError(res, 401, "Вход для преподавателя обязателен.");
@@ -1469,6 +1938,23 @@ async function handleApi(req, res, url, session) {
     return handleCreateWebinar(req, res, session);
   }
 
+  if (url.pathname.startsWith("/api/teacher/webinars/") && req.method === "DELETE") {
+    if (!session || session.role !== "teacher") {
+      return sendError(res, 401, "Только преподаватель может удалять вебинары.");
+    }
+
+    return handleDeleteWebinar(res, decodeURIComponent(url.pathname.replace("/api/teacher/webinars/", "")));
+  }
+
+  if (url.pathname.startsWith("/api/teacher/webinars/") && url.pathname.endsWith("/design") && req.method === "POST") {
+    if (!session || session.role !== "teacher") {
+      return sendError(res, 401, "Только преподаватель может редактировать оформление вебинаров.");
+    }
+
+    const webinarId = decodeURIComponent(url.pathname.replace("/api/teacher/webinars/", "").replace("/design", ""));
+    return handleUpdateWebinarDesign(req, res, session, webinarId);
+  }
+
   if (url.pathname === "/api/teacher/homeworks" && req.method === "POST") {
     if (!session || session.role !== "teacher") {
       return sendError(res, 401, "Только преподаватель может добавлять домашние задания.");
@@ -1484,10 +1970,11 @@ async function serveResolvedFile(res, absolutePath) {
   const file = await fs.readFile(absolutePath);
   const extension = path.extname(absolutePath).toLowerCase();
   const type = CONTENT_TYPES[extension] || "application/octet-stream";
+  const noStoreExtensions = new Set([".html", ".css", ".js"]);
 
   res.writeHead(200, {
     "Content-Type": type,
-    "Cache-Control": extension === ".html" ? "no-store" : "public, max-age=60",
+    "Cache-Control": noStoreExtensions.has(extension) ? "no-store" : "public, max-age=60",
     "Content-Length": file.length
   });
   res.end(file);

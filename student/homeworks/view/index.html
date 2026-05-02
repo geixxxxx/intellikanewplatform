@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Интеллика | Домашнее задание</title>
+    <link rel="stylesheet" href="../../../styles.css" />
+  </head>
+  <body data-page="student-homework-view">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <span>ИНТЕЛЛИКА</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="sidebar-link" href="/student/dashboard/">Кабинет</a>
+          <a class="sidebar-link" href="/student/webinars/">Вебинары</a>
+          <a class="sidebar-link" href="/student/dashboard/#library">Видео</a>
+          <a class="sidebar-link sidebar-link--active" href="/student/dashboard/#homework">Домашки</a>
+          <a class="sidebar-link" href="/student/dashboard/#community">Комьюнити</a>
+          <a class="sidebar-link" href="/logout">Выход</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="sidebar-card__eyebrow">Страница домашки</p>
+          <h3>Открой задание отдельно, посмотри все материалы и введи ответ прямо внутри платформы без лишних переходов.</h3>
+          <a class="ghost-action" href="/student/dashboard/#homework">Назад к списку ДЗ</a>
+        </div>
+
+        <div class="sidebar-stack">
+          <a class="surface-link surface-link--inverted" href="../../..">Лендинг</a>
+          <a class="logout-button" href="/logout">Выйти</a>
+        </div>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="topbar">
+          <label class="search">
+            <span>Поиск по платформе</span>
+            <input type="text" placeholder="Домашка, вебинар, предмет..." />
+          </label>
+
+          <div class="topbar__actions">
+            <div class="student-chip">
+              <div class="student-chip__avatar" id="student-initials">УЧ</div>
+              <div>
+                <strong id="student-name">Ученик</strong>
+                <span id="student-meta">11 класс · ЕГЭ 2026</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero-card hero-card--teacher">
+          <div class="hero-card__copy">
+            <p class="eyebrow" id="student-homework-subject">Домашнее задание</p>
+            <h1 id="student-homework-title">Загрузка задания</h1>
+            <p id="student-homework-instructions">
+              Условие домашнего задания появится здесь сразу после загрузки данных платформы.
+            </p>
+            <div class="hero-card__actions">
+              <a class="ghost-action ghost-action--light" href="/student/dashboard/#homework">Ко всем домашкам</a>
+              <a class="primary-action primary-action--inline" id="student-homework-webinar-link" href="/student/webinars/">К связанному вебинару</a>
+            </div>
+          </div>
+
+          <div class="hero-card__stats hero-card__stats--teacher">
+            <div class="teacher-summary-card">
+              <p>Дедлайн</p>
+              <strong id="student-homework-deadline">Скоро</strong>
+              <span id="student-homework-course">Курс</span>
+            </div>
+            <div class="teacher-summary-card">
+              <p>Статус ответа</p>
+              <strong id="student-homework-status">Нужен ответ</strong>
+              <span id="student-homework-status-meta">Ответ ещё не сохранён</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="webinar-stage">
+          <section class="section-card webinar-stage__player">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Материалы</p>
+                <h2>Изображения и опоры к заданию</h2>
+              </div>
+            </div>
+            <div class="homework-gallery homework-gallery--detail" id="student-homework-gallery"></div>
+          </section>
+
+          <section class="section-card webinar-stage__side">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Контекст</p>
+                <h2>Что важно перед отправкой</h2>
+              </div>
+            </div>
+            <div class="detail-checklist">
+              <article class="detail-checklist__item">
+                <strong>Связанный вебинар</strong>
+                <span id="student-homework-checklist-webinar">Загрузка данных</span>
+              </article>
+              <article class="detail-checklist__item">
+                <strong>Статус ответа</strong>
+                <span id="student-homework-checklist-status">Ответ пока не заполнен</span>
+              </article>
+              <article class="detail-checklist__item">
+                <strong>Срок сдачи</strong>
+                <span id="student-homework-checklist-deadline">Дедлайн: скоро</span>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-grid content-grid--lower">
+          <section class="section-card section-card--tall">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Ответ ученика</p>
+                <h2>Введи решение прямо внутри платформы</h2>
+              </div>
+            </div>
+
+            <form class="teacher-form" id="student-homework-answer-form">
+              <label class="field">
+                <span>Ответ</span>
+                <textarea
+                  id="student-homework-answer"
+                  rows="12"
+                  placeholder="Напиши полный ответ, ход решения, формулы или пояснения по этому заданию."
+                ></textarea>
+              </label>
+
+              <div class="teacher-form__actions teacher-form__actions--student">
+                <button class="ghost-action" id="student-homework-save-draft" type="button">Сохранить черновик</button>
+                <button class="primary-action primary-action--inline" id="student-homework-submit-answer" type="submit">Отправить ответ</button>
+                <p class="form-note" id="student-homework-answer-note">
+                  Ответ сохранится в профиле и будет доступен после следующего входа.
+                </p>
+              </div>
+            </form>
+          </section>
+
+          <section class="section-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <p class="eyebrow">Связанный материал</p>
+                <h2>Откуда пришло это задание</h2>
+              </div>
+            </div>
+            <div class="webinar-mini-list" id="student-homework-context"></div>
+          </section>
+        </section>
+
+        <section class="section-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="eyebrow">Дальше по теме</p>
+              <h2>Другие домашки рядом</h2>
+            </div>
+          </div>
+          <div class="webinar-mini-list" id="student-related-homeworks"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../../main.js"></script>
+  </body>
+</html>
